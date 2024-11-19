@@ -131,11 +131,11 @@ export default function Sidebar() {
           {[
             {
              name:'Dashboard',
-             icons:[<DashboardCustomize className='text-3xl text-blue-500'/>,<DashboardCustomizeOutlined className='text-3xl'/>],
+             icons:[<DashboardCustomize className='text-3xl text-orange-500'/>,<DashboardCustomizeOutlined className='text-3xl'/>],
             },
             {
               name:'Cart',
-              icons:[<ShoppingCart className='text-3xl text-blue-500'/>,<ShoppingCartOutlined className='text-3xl'/>],
+              icons:[<ShoppingCart className='text-3xl text-orange-500'/>,<ShoppingCartOutlined className='text-3xl'/>],
              }].map((item, index) => (
             <Link to={`/app/${item.name.toLowerCase()}`}>
             <ListItem key={index} disablePadding sx={{ display: 'block' }}>

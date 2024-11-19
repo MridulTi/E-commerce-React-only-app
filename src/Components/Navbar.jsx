@@ -48,7 +48,7 @@ function Navbar() {
           <BiBell className='text-3xl text-grey-1'/>
         </Tooltip>
         <Tooltip title={userInfo!=null?userInfo.name:"My User"} className='z-20'>
-          {userInfo?.picture!=""?<Avatar sizes="sm" src={userInfo.picture}/>:<FaRegUserCircle className='text-3xl text-grey-1'/>}
+          {userInfo?.picture!=""?<Avatar sizes="sm" src={userInfo?.picture}/>:<FaRegUserCircle className='text-3xl text-grey-1'/>}
         </Tooltip>
       </div>
     </div>

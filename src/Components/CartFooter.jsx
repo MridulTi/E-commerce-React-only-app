@@ -4,6 +4,9 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import { BiUpArrow } from "react-icons/bi";
 
+const DELIVERY_CHARGE = 50; // Flat delivery charge
+const TAX_RATE = 0.18; // 18% tax
+
 const calculateTotalPrice = () => {
   const existingData = JSON.parse(localStorage.getItem("cart")) || []; // Safeguard for empty data
   let totalPrice = 0;
@@ -20,32 +23,42 @@ const calculateTotalPrice = () => {
   return totalPrice;
 };
 
-export default function UpwardAccordion() {
+export default function CartFooter() {
   const [expanded, setExpanded] = React.useState(false);
-  const totalPrice=calculateTotalPrice()
+
+  const baseTotalPrice = calculateTotalPrice(); // Base total price
+  const taxAmount = baseTotalPrice * TAX_RATE; // Calculate tax
+  const finalTotalPrice = baseTotalPrice + DELIVERY_CHARGE + taxAmount; // Add delivery charges and tax
+
   const handleChange = () => {
     setExpanded(!expanded);
   };
 
   return (
-    <div className="w-full">
-      {/* Content pushed below the accordion */}
-      <Accordion
-        expanded={expanded}
-        onChange={handleChange}
-        className={``}
-      >
+    <div className="w-full shadow-xl mx-5">
+      <Accordion expanded={expanded} onChange={handleChange} className={``}>
         <AccordionSummary
-          className="font-bold text-xl flex justify-between"
+          sx={{bgcolor:"secondary.main"}}
+          className="font-bold text-2xl"
           expandIcon={<BiUpArrow />}
           aria-controls="panel1-content"
           id="panel1-header"
         >
-          Total Price: ₹{totalPrice} {/* Example total price */}
+          Total Price: ₹{finalTotalPrice.toFixed(2)} {/* Final total price */}
         </AccordionSummary>
         <AccordionDetails className="bg-gray-100">
-          <p>Expanded content goes here, such as cart details.</p>
-          <button className="bg-yellow-400 hover:bg-yellow-300 text-black px-2 py-1">Proceed to Pay</button>
+          <p className="text-lg font-semibold">Price Breakdown:</p>
+          <ul className="list-disc ml-5 text-gray-700">
+            <li>Base Price: ₹{baseTotalPrice.toFixed(2)}</li>
+            <li>Delivery Charges: ₹{DELIVERY_CHARGE}</li>
+            <li>Tax (18%): ₹{taxAmount.toFixed(2)}</li>
+          </ul>
+          <p className="font-bold mt-4 text-xl">
+            Final Total: ₹{finalTotalPrice.toFixed(2)}
+          </p>
+          <button className="bg-yellow-400 hover:bg-yellow-300 text-black px-4 py-2 mt-4">
+            Proceed to Pay
+          </button>
         </AccordionDetails>
       </Accordion>
     </div>

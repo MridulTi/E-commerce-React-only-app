@@ -1,54 +1,159 @@
-import { Card, Typography } from '@mui/material'
-import React, { useEffect, useState } from 'react'
-import { FaStar } from 'react-icons/fa'
-import { MdCancel } from 'react-icons/md';
+import { Card, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { FaStar } from "react-icons/fa";
+import { MdCancel } from "react-icons/md";
 
 function SearchCard(props) {
-  function addToLocalStorage() {
-    const existingData = localStorage.getItem('cart');
-    const dataArray = existingData ? JSON.parse(existingData) : [];
-    const exists = dataArray.some((item) => {
-      return JSON.stringify(item) === JSON.stringify(props);
-    });
-    if (!exists) {
-      dataArray.push(props);
-      localStorage.setItem('cart', JSON.stringify(dataArray));
-    } else {
-      alert('Item already exists in cart')
+  const [quantity, setQuantity] = useState(0);
+
+  useEffect(() => {
+    // Check local storage for existing quantity
+    const existingData = JSON.parse(localStorage.getItem("cart")) || [];
+    const foundItem = existingData.find((item) => item.id === props.id);
+    if (foundItem && foundItem.quantity) {
+      setQuantity(foundItem.quantity);
     }
-  }
+  }, [props.id]);
+
+  const addToCart = () => {
+    const existingData = JSON.parse(localStorage.getItem("cart")) || [];
+    const foundItem = existingData.find((item) => item.id === props.id);
+
+    if (!foundItem) {
+      const newItem = { ...props, quantity: 1 };
+      existingData.push(newItem);
+      localStorage.setItem("cart", JSON.stringify(existingData));
+      setQuantity(1);
+    }
+  };
+
+  const updateQuantity = (newQuantity) => {
+    const existingData = JSON.parse(localStorage.getItem("cart")) || [];
+    const updatedData = existingData.map((item) => {
+      if (item.id === props.id) {
+        return { ...item, quantity: newQuantity };
+      }
+      return item;
+    });
+
+    if (newQuantity > 0) {
+      localStorage.setItem("cart", JSON.stringify(updatedData));
+      setQuantity(newQuantity);
+    } else {
+      // Remove item if quantity is 0
+      const filteredData = existingData.filter((item) => item.id !== props.id);
+      localStorage.setItem("cart", JSON.stringify(filteredData));
+      setQuantity(0);
+    }
+  };
+
   return (
     <Card className="flex justify-between border p-5 bg-white">
-      <div className='flex gap-6'>
-        <img
-          src={props.thumbnail}
-          className='h-64 aspect-square'
-        />
-        <div >
-          <Typography variant='h6' sx={{ fontWeight: "bolder" }} className='capitalize font-bold text-xl'>{props.title}</Typography>
-          <Typography variant='body2' sx={{ fontWeight: "light" }} className='capitalize text-gray-600 font-bold text-xl'>{props.description}</Typography>
-          <p className='flex text-sm my-1 gap-2 font-bold text-white bg-green-700 w-fit px-2 items-center'>{props.rating} <FaStar /></p>
+      <div className="flex gap-6">
+        <img src={props.thumbnail} className="h-64 aspect-square" />
+        <div>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: "bolder" }}
+            className="capitalize font-bold text-xl"
+          >
+            {props.title}
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{ fontWeight: "light" }}
+            className="capitalize text-gray-600 font-bold text-xl"
+          >
+            {props.description}
+          </Typography>
+          <p className="flex text-sm my-1 gap-2 font-bold text-white bg-green-700 w-fit px-2 items-center">
+            {props.rating} <FaStar />
+          </p>
 
-          <Typography variant="body2" className='text-grey-3 w-fit px-2 py-1 bg-red-600 text-white'>{props.shippingInformation}</Typography>
-          <ul className='list-disc px-4 text-gray-500'>
-            {Object.keys(props.dimensions).map((key) => {
-              return <li key={key}>{key} : {props.dimensions[key]}</li>
-            })}
+          <Typography
+            variant="body2"
+            className="text-grey-3 w-fit px-2 py-1 bg-red-600 text-white"
+          >
+            {props.shippingInformation}
+          </Typography>
+          <ul className="list-disc px-4 text-gray-500">
+            {Object.keys(props.dimensions).map((key) => (
+              <li key={key}>
+                {key} : {props.dimensions[key]}
+              </li>
+            ))}
           </ul>
-          <p className={`flex text-sm my-1 gap-2 font-bold ${props.stock != 0 ? "text-green-700" : "text-red-600"} w-fit px-2 items-center`}>{props.stock != 0 ? "In Stock" : "Out of Stock"}</p>
-          <button onClick={addToLocalStorage} disabled={props.stock != 0 ? false : true} className={`rounded-full px-4 py-1 ${props.stock != 0 ? "opacity-100" : "opacity-50 cursor-not-allowed"} bg-yellow-500 text-black hover:bg-yellow-400`}>Add to Cart</button>
+          <p
+            className={`flex text-sm my-1 gap-2 font-bold ${
+              props.stock !== 0 ? "text-green-700" : "text-red-600"
+            } w-fit px-2 items-center`}
+          >
+            {props.stock !== 0 ? "In Stock" : "Out of Stock"}
+          </p>
+          {quantity === 0 ? (
+            <button
+              onClick={addToCart}
+              disabled={props.stock !== 0 ? false : true}
+              className={`rounded-full px-4 py-1 ${
+                props.stock !== 0
+                  ? "opacity-100"
+                  : "opacity-50 cursor-not-allowed"
+              } bg-yellow-500 text-black hover:bg-yellow-400`}
+            >
+              Add to Cart
+            </button>
+          ) : (
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => updateQuantity(quantity - 1)}
+                className="px-2 py-1 bg-gray-200 text-gray-700 font-bold rounded-md hover:bg-gray-300"
+              >
+                -
+              </button>
+              <span className="text-lg font-bold">{quantity}</span>
+              <button
+                onClick={() => updateQuantity(quantity + 1)}
+                className="px-2 py-1 bg-gray-200 text-gray-700 font-bold rounded-md hover:bg-gray-300"
+              >
+                +
+              </button>
+            </div>
+          )}
         </div>
       </div>
-      <div className='px-5 min-w-52 text-right'>
-        <Typography variant="h4" >₹{Math.round(props.price - ((props.price * props.discountPercentage) / 100))}</Typography>
-        <Typography variant="body1" sx={{ fontWeight: "medium" }} className='text-grey-6'><span className='line-through text-grey-1 font-extralight'>₹{props.price}</span> {props.discountPercentage}% Off</Typography>
-        <Typography variant="body2" sx={{ fontWeight: "bold" }} className='text-green-600'>{props.returnPolicy}</Typography>
-        <Typography variant="body2" sx={{ fontWeight: "bold" }} className='text-yellow-600'>{props.warrantyInformation}</Typography>
+      <div className="px-5 min-w-52 text-right">
+        <Typography variant="h4">
+          ₹{Math.round(props.price - (props.price * props.discountPercentage) / 100)}
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{ fontWeight: "medium" }}
+          className="text-grey-6"
+        >
+          <span className="line-through text-grey-1 font-extralight">
+            ₹{props.price}
+          </span>{" "}
+          {props.discountPercentage}% Off
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{ fontWeight: "bold" }}
+          className="text-green-600"
+        >
+          {props.returnPolicy}
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{ fontWeight: "bold" }}
+          className="text-yellow-600"
+        >
+          {props.warrantyInformation}
+        </Typography>
       </div>
-
     </Card>
-  )
+  );
 }
+
 
 
 function CartCard(props) {

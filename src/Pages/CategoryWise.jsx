@@ -22,22 +22,9 @@ function CategoryWise() {
 
     const { response, loading, error } = useAxios({
         method: 'get',
-        url: `/products/category/${query.toLowerCase()}?limit=10`,
+        url: `/products/category/${query.toLowerCase()}?limit=50`,
     });
-    function paginationFetch(){
-        axios(`/products/category/${query.toLowerCase()}?limit=10&skip=${Number(currentPage)*10}`)
-        .then(res=>{
-            setData(res.data);
-        })
-        .catch(err=>{
-            console.log(err)
-        })
-    }
 
-    useEffect(()=>{
-        paginationFetch();
-        // console.log(data)
-    },[currentPage])
 
     useEffect(() => {
         if (response !== null) {
@@ -64,7 +51,6 @@ function CategoryWise() {
                 />)
             ) : <h1 className='text-grey-2 text-center'>Loading...</h1>}
             
-            <AppPagination total={data?.total}/>
         </Container>
     )
 }
