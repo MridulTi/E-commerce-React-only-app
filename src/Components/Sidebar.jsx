@@ -16,15 +16,16 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
-import { listItemSecondaryActionClasses, Tooltip } from '@mui/material';
-import { MdDashboard, MdSpaceDashboard } from 'react-icons/md';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { DashboardCustomize, DashboardCustomizeOutlined, Logout, LogoutOutlined, SettingsAccessibility, SettingsAccessibilityOutlined, SettingsApplications, SettingsApplicationsOutlined, ShoppingCart, ShoppingCartOutlined } from '@mui/icons-material';
+import Tooltip from '@mui/material/Tooltip';
+import { Avatar, useMediaQuery } from '@mui/material';
+import { DashboardCustomize, DashboardCustomizeOutlined, Logout, LogoutOutlined, ShoppingCart, ShoppingCartOutlined } from '@mui/icons-material';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { googleLogout } from '@react-oauth/google';
 import { useAuth } from '../Context/AuthContext.jsx';
-
+import { BiBell, BiNotification } from 'react-icons/bi';
+import { BsSearch } from 'react-icons/bs';
+import useAxios from '../Hooks/useAxios.js';
+import { FaRegUserCircle } from 'react-icons/fa';
 const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
@@ -53,75 +54,149 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'flex-end',
   padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
   ...theme.mixins.toolbar,
 }));
 
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme }) => ({
+const AppBar = styled(MuiAppBar)(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
   transition: theme.transitions.create(['width', 'margin'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  variants: [
-    {
-      props: ({ open }) => open,
-      style: {
-        marginLeft: drawerWidth,
-        width: `calc(100% - ${drawerWidth}px)`,
-        transition: theme.transitions.create(['width', 'margin'], {
-          easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.enteringScreen,
-        }),
-      },
-    },
-  ],
+  ...(open && {
+    marginLeft: drawerWidth,
+    width: `calc(100% - ${drawerWidth}px)`,
+    transition: theme.transitions.create(['width', 'margin'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
 }));
 
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    variants: [
-      {
-        props: ({ open }) => open,
-        style: {
-          ...openedMixin(theme),
-          '& .MuiDrawer-paper': openedMixin(theme),
-        },
-      },
-      {
-        props: ({ open }) => !open,
-        style: {
-          ...closedMixin(theme),
-          '& .MuiDrawer-paper': closedMixin(theme),
-        },
-      },
-    ],
+const Drawer = styled(MuiDrawer)(({ theme, open }) => ({
+  width: drawerWidth,
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
+  boxSizing: 'border-box',
+  ...(open && {
+    ...openedMixin(theme),
+    '& .MuiDrawer-paper': openedMixin(theme),
   }),
-);
+  ...(!open && {
+    ...closedMixin(theme),
+    '& .MuiDrawer-paper': closedMixin(theme),
+  }),
+}));
 
 export default function Sidebar() {
   const theme = useTheme();
-  const navigate=useNavigate();
-  const {userInfo,update,setUserInfo}=useAuth();
+  const navigate = useNavigate();
+  const { userInfo, update, setUserInfo } = useAuth();
+  const location = useLocation();
+
+  const isTablet = useMediaQuery(theme.breakpoints.down('md')); // Tablet screens
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Mobile screens
+
   const [open, setOpen] = React.useState(false);
-  const location=useLocation();
+
 
   const handleDrawer = () => {
     setOpen(!open);
-    console.log(userInfo)
   };
 
+  const [query, setQuery] = React.useState("");
+  const [data, setData] = React.useState(null);
+  const { response, loading, error } = useAxios({
+    method: 'get',
+    url: `/products/search?q=${query}`,
+  });
+
+  const handleSearch = (e) => {
+    if (e.key === "Enter" && query.trim() !== "") {
+      navigate(`/app/search?q=${query}`);
+    }
+  };
+
+  React.useEffect(() => {
+    if (response !== null) {
+      setData(response);
+      console.log(response);
+    }
+  }, [response]);
 
   return (
-      <Drawer variant="permanent" open={open}>
-        <DrawerHeader sx={{display:"flex",justifyContent:"center"}}>
-          {open&&<Typography variant='h5' sx={{fontWeight:"bold"}}>ORDER APP</Typography>}
+    <>
+      <CssBaseline />
+      <AppBar position="fixed" open={open}>
+        <Toolbar
+          className={`fixed z-20 bg-white border-b ${
+            isMobile ? 'px-4 h-12' : isTablet ? 'px-8 h-14' : 'px-20 h-16'
+          } flex justify-between items-center`}
+        >
+          <div className="flex items-center gap-2">
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawer}
+              edge="start"
+              sx={{
+                marginRight: 2,
+                ...(open && { display: 'none' }),
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+            {!open && (
+              <Typography
+                variant={isMobile ? "body1" : isTablet ? 'h6' : 'h5'}
+                sx={{ fontWeight: 'bold', flexGrow: 1 ,display:isMobile?"none":"block"}}
+              >
+                ORDER APP
+              </Typography>
+            )}
+          </div>
+          <div
+            className={`border rounded-full flex items-center ${
+              isMobile ? 'w-[70vw] h-8 px-4' : isTablet ? 'w-[50vw] h-10 px-5' : 'w-[30vw] h-10 px-6'
+            } bg-gray-100`}
+          >
+            <BsSearch className="text-grey-1" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={handleSearch}
+              placeholder="Search Input"
+              className="bg-inherit text-black p-2 w-full h-full outline-0"
+            />
+          </div>
+          <div className="flex items-center gap-4">
+            <Tooltip title="Notification" className="z-20">
+              <BiBell className="text-2xl text-grey-1" />
+            </Tooltip>
+            <Tooltip title={userInfo?.name || "My User"} className="z-20">
+              {userInfo?.picture ? (
+                <Avatar sizes="sm" src={userInfo.picture} />
+              ) : (
+                <FaRegUserCircle className="text-2xl text-grey-1" />
+              )}
+            </Tooltip>
+          </div>
+        </Toolbar>
+      </AppBar>
+      <Drawer
+        variant={isMobile ? 'temporary' : 'permanent'}
+        open={open}
+        onClose={handleDrawer}
+      >
+        <DrawerHeader>
+          {open && (
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 'bold', flexGrow: 1, ml: '5%' }}
+            >
+              ORDER APP
+            </Typography>
+          )}
           <IconButton onClick={handleDrawer}>
             {open ? <ChevronLeftIcon /> : <MenuIcon />}
           </IconButton>
@@ -130,126 +205,86 @@ export default function Sidebar() {
         <List>
           {[
             {
-             name:'Dashboard',
-             icons:[<DashboardCustomize className='text-3xl text-orange-500'/>,<DashboardCustomizeOutlined className='text-3xl'/>],
+              name: 'Dashboard',
+              icons: [
+                <DashboardCustomize className="text-2xl text-orange-500" />,
+                <DashboardCustomizeOutlined className="text-2xl" />,
+              ],
             },
             {
-              name:'Cart',
-              icons:[<ShoppingCart className='text-3xl text-orange-500'/>,<ShoppingCartOutlined className='text-3xl'/>],
-             }].map((item, index) => (
-            <Link to={`/app/${item.name.toLowerCase()}`}>
-            <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-              <Tooltip title={item.name} arrow placement="right">
-              <ListItemButton
-                sx={[
-                  {
-                    minHeight: 48,
-                    px: 2.5,
-                  },
-                  open
-                    ? {
-                        justifyContent: 'initial',
-                      }
-                    : {
+              name: 'Cart',
+              icons: [
+                <ShoppingCart className="text-2xl text-orange-500" />,
+                <ShoppingCartOutlined className="text-2xl" />,
+              ],
+            },
+          ].map((item) => (
+            <Link to={`/app/${item.name.toLowerCase()}`} key={item.name}>
+              <ListItem disablePadding sx={{ display: 'block' }}>
+                <Tooltip title={item.name} arrow placement="right">
+                  <ListItemButton
+                    sx={{
+                      minHeight: 48,
+                      justifyContent: open ? 'initial' : 'center',
+                      px: 2.5,
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : 'auto',
                         justifyContent: 'center',
-                      },
-                ]}
-              >
-                <ListItemIcon
-                  sx={[
-                    {
-                      minWidth: 0,
-                      justifyContent: 'center',
-                    },
-                    open
-                      ? {
-                          mr: 3,
-                        }
-                      : {
-                          mr: 'auto',
-                        },
-                  ]}
-                >
-                  {location?.pathname === `/app/${item.name.toLowerCase()}` ? item.icons[0] : item.icons[1]}
-                </ListItemIcon>
-                <ListItemText
-                  primary={item.name}
-                  sx={[
-                    open
-                      ? {
-                          opacity: 1,
-                        }
-                      : {
-                          opacity: 0,
-                        },
-                  ]}
-                />
-              </ListItemButton>
-              </Tooltip>
-            </ListItem>
+                      }}
+                    >
+                      {location.pathname === `/app/${item.name.toLowerCase()}`
+                        ? item.icons[0]
+                        : item.icons[1]}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={item.name}
+                      sx={{ opacity: open ? 1 : 0 }}
+                    />
+                  </ListItemButton>
+                </Tooltip>
+              </ListItem>
             </Link>
           ))}
         </List>
         <Divider />
         <List>
-          {['LogOut'].map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: 'block' }}>
-              <Tooltip title={text} arrow placement='right'>
+          <ListItem disablePadding sx={{ display: 'block' }}>
+            <Tooltip title="Logout" arrow placement="right">
               <ListItemButton
-              onClick={()=>{
-                googleLogout();
-                update(false);
-                setUserInfo(null)
-                navigate("/")
-              }}
-                sx={[
-                  {
-                    minHeight: 48,
-                    px: 2.5,
-                  },
-                  open
-                    ? {
-                        justifyContent: 'initial',
-                      }
-                    : {
-                        justifyContent: 'center',
-                      },
-                ]}
+                onClick={() => {
+                  googleLogout();
+                  update(false);
+                  setUserInfo(null);
+                  navigate('/');
+                }}
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? 'initial' : 'center',
+                  px: 2.5,
+                }}
               >
                 <ListItemIcon
-                  sx={[
-                    {
-                      minWidth: 0,
-                      justifyContent: 'center',
-                    },
-                    open
-                      ? {
-                          mr: 3,
-                        }
-                      : {
-                          mr: 'auto',
-                        },
-                  ]}
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : 'auto',
+                    justifyContent: 'center',
+                  }}
                 >
-                  {index % 2 === 0 ? <Logout className='text-red-600'/> : <LogoutOutlined className='text-red-800'/>}
+                  <LogoutOutlined className="text-red-800" />
                 </ListItemIcon>
                 <ListItemText
-                  primary={text}
-                  sx={[
-                    open
-                      ? {
-                          opacity: 1,
-                        }
-                      : {
-                          opacity: 0,
-                        },
-                  ]}
+                  primary="Logout"
+                  sx={{ opacity: open ? 1 : 0 }}
                 />
               </ListItemButton>
-              </Tooltip>
-            </ListItem>
-          ))}
+            </Tooltip>
+          </ListItem>
         </List>
       </Drawer>
+    </>
   );
 }

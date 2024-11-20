@@ -8,8 +8,9 @@ import useAxios from "../Hooks/useAxios";
 import { Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
+
 export const KeywordCarousel = () => {
-    const navigate=useNavigate();
+    const navigate = useNavigate();
     const keywords = [
         "beauty",
         "fragrances",
@@ -35,7 +36,7 @@ export const KeywordCarousel = () => {
         "womens-jewellery",
         "womens-shoes",
         "womens-watches"
-    ]
+    ];
     const containerRef = useRef(null);
     const [scrollPosition, setScrollPosition] = useState(0);
 
@@ -52,26 +53,36 @@ export const KeywordCarousel = () => {
         }
     };
 
+    // Touch-based scrolling for mobile and tablet screens
+    const handleTouchMove = (e) => {
+        const container = containerRef.current;
+        container.scrollLeft -= e.deltaX; // Adjust based on touch movement
+    };
+
     return (
         <div className="flex items-center gap-2 px-4 py-2">
-            {/* Left Scroll Button */}
-            <BsArrowLeftCircleFill
-                onClick={() => handleScroll("left")}
-                disabled={scrollPosition <= 0}
-                className={`text-3xl text-grey-2 cursor-pointer rounded-full shadow-md ${scrollPosition <= 0 ? "opacity-50 cursor-not-allowed" : "hover:text-grey-1"
-                    }`}
-            />
+            {/* Conditional rendering for larger screens */}
+            <div className="hidden lg:flex items-center gap-2">
+                <BsArrowLeftCircleFill
+                    onClick={() => handleScroll("left")}
+                    disabled={scrollPosition <= 0}
+                    className={`text-3xl text-grey-2 cursor-pointer rounded-full shadow-md 
+                        ${scrollPosition <= 0 ? "opacity-50 cursor-not-allowed" : "hover:text-grey-1"}
+                    `}
+                />
+            </div>
 
             {/* Keywords Container */}
             <div
                 ref={containerRef}
-                className="flex w-[55vw] overflow-x-hidden whitespace-nowrap scrollbar-hide gap-3 flex-1"
+                className="flex w-80 md:w-[75vw] xl:w-[55vw] overflow-x-scroll lg:overflow-x-hidden whitespace-nowrap scrollbar-hide gap-3 flex-1"
+                onWheel={(e) => e.deltaY === 0 && handleTouchMove(e)} // Enables dragging with mouse or touch
             >
                 {keywords.map((keyword, index) => (
                     <span
                         key={index}
                         draggable={false}
-                        onClick={()=>navigate(`/app/category?q=${keyword}`)}
+                        onClick={() => navigate(`/app/category?q=${keyword}`)}
                         className="cursor-pointer capitalize px-4 py-2 bg-gray-300 rounded-full text-sm hover:bg-gray-400 hover:text-grey-5 active:bg-blue-500 active:text-white"
                     >
                         {keyword}
@@ -79,18 +90,21 @@ export const KeywordCarousel = () => {
                 ))}
             </div>
 
-            {/* Right Scroll Button */}
-            <BsArrowRightCircleFill
-                onClick={() => handleScroll("right")}
-                disabled={scrollPosition >= containerRef.current?.scrollWidth - containerRef.current?.clientWidth}
-                className={`text-3xl text-grey-2 cursor-pointer rounded-full shadow-md ${scrollPosition >= containerRef.current?.scrollWidth - containerRef.current?.clientWidth
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:text-grey-1"
-                    }`}
-            />
+            {/* Conditional rendering for larger screens */}
+            <div className="hidden lg:flex items-center gap-2">
+                <BsArrowRightCircleFill
+                    onClick={() => handleScroll("right")}
+                    disabled={scrollPosition >= containerRef.current?.scrollWidth - containerRef.current?.clientWidth}
+                    className={`text-3xl text-grey-2 cursor-pointer rounded-full shadow-md 
+                    ${scrollPosition >= containerRef.current?.scrollWidth - containerRef.current?.clientWidth
+                            ? "opacity-50 cursor-not-allowed" : "hover:text-grey-1"}
+                    `}
+                />
+            </div>
         </div>
     );
 };
+
 
 
 export const CardCarousel = () => {
@@ -147,9 +161,11 @@ export const CardCarousel = () => {
                     <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }} className="capitalize">
                         {category}
                     </Typography>
-                    <Carousel className="gap-2 shadow-none" responsive={responsive}
+                    <Carousel
+                        className="gap-2 shadow-none"
+                        responsive={responsive}
                         swipeable={true}
-                        draggable={false}
+                        draggable={true}
                         removeArrowOnDeviceType={["tablet", "mobile"]}
                     >
                         {categories[category].map((item) => (

@@ -35,28 +35,30 @@ export default function CartFooter() {
   };
 
   return (
-    <div className="w-full shadow-xl mx-5">
-      <Accordion expanded={expanded} onChange={handleChange} className={``}>
+    <div className="w-full shadow-xl">
+      <Accordion expanded={expanded} onChange={handleChange} className="w-full">
         <AccordionSummary
-          sx={{bgcolor:"secondary.main"}}
-          className="font-bold text-2xl"
+          sx={{ bgcolor: "secondary.main" }}
+          className="font-bold text-2xl sm:text-xl md:text-2xl"
           expandIcon={<BiUpArrow />}
           aria-controls="panel1-content"
           id="panel1-header"
         >
           Total Price: ₹{finalTotalPrice.toFixed(2)} {/* Final total price */}
         </AccordionSummary>
-        <AccordionDetails className="bg-gray-100">
-          <p className="text-lg font-semibold">Price Breakdown:</p>
-          <ul className="list-disc ml-5 text-gray-700">
+        <AccordionDetails className="bg-gray-100 p-4 sm:p-3 md:p-5 lg:p-6">
+          <p className="text-lg font-semibold sm:text-md md:text-lg lg:text-xl">
+            Price Breakdown:
+          </p>
+          <ul className="list-disc ml-5 text-gray-700 sm:text-sm md:text-base lg:text-lg">
             <li>Base Price: ₹{baseTotalPrice.toFixed(2)}</li>
             <li>Delivery Charges: ₹{DELIVERY_CHARGE}</li>
             <li>Tax (18%): ₹{taxAmount.toFixed(2)}</li>
           </ul>
-          <p className="font-bold mt-4 text-xl">
+          <p className="font-bold mt-4 text-xl sm:text-lg md:text-xl lg:text-2xl">
             Final Total: ₹{finalTotalPrice.toFixed(2)}
           </p>
-          <button className="bg-yellow-400 hover:bg-yellow-300 text-black px-4 py-2 mt-4">
+          <button className="bg-yellow-400 hover:bg-yellow-300 text-black px-4 py-2 mt-4 sm:px-3 sm:py-2 md:px-4 md:py-3 lg:px-5 lg:py-4">
             Proceed to Pay
           </button>
         </AccordionDetails>

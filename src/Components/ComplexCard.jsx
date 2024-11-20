@@ -88,6 +88,12 @@ export default function ComplexCard(props) {
 
     localStorage.setItem('cart', JSON.stringify(existingData));
   }
+  const truncateText = (text, maxLength) => {
+    if (text.length > maxLength) {
+      return text.slice(0, maxLength) + "...";
+    }
+    return text;
+  };
 
   return (
     <Paper sx={{ maxWidth: 345 }} elevation={1} className="shadow-xl">
@@ -98,7 +104,7 @@ export default function ComplexCard(props) {
             {props.title}
           </Typography>
           <Typography variant="body2" sx={{ fontWeight: "light" }} className="capitalize text-gray-600 font-bold text-xl">
-            {props.description}
+          {truncateText(props.description, 60)}
           </Typography>
           <p className="flex text-sm my-1 gap-2 font-bold text-white bg-green-700 w-fit px-2 items-center">
             {props.rating} <FaStar />

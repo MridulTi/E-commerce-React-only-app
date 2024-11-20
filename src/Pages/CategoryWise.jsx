@@ -34,23 +34,39 @@ function CategoryWise() {
     }, [response]);
 
     return (
-        <Container sx={{ py: { 'xs': 1, 'md': "20%", 'lg': "5%", 'xl': "5%" }}}>
-            <Card className='bg-white w-full p-5 border'>
-                <Breadcrumbs aria-label="breadcrumb" sx={{fontSize:"0.8rem",mb:"1rem"}} separator={<MdKeyboardArrowRight/>}>
+        <Container sx={{
+            py: { xs: 10, md: "8%", lg: "4%" },
+            px: { xs: 2, sm: 15, md: "12%", lg: "5%" }
+        }}>
+            <Card className='bg-white w-full p-4 md:p-5 border'>
+                <Breadcrumbs aria-label="breadcrumb" sx={{
+                    fontSize: { xs: "0.7rem", sm: "0.8rem" }, mb: "1rem"
+                }} separator={<MdKeyboardArrowRight />}>
                     <Link underline="hover" color="inherit" href="/app/dashboard">
                         Home
                     </Link>
-                    <Typography sx={{ color: 'text.primary',fontSize:"0.8rem" }} className='capitalize'>{query}</Typography>
+                    <Typography sx={{
+                        color: 'text.primary',
+                        fontSize: { xs: "0.8rem", sm: "1rem" }
+                    }}>{query}</Typography>
                 </Breadcrumbs>
-                <Typography sx={{ fontWeight: "bold" }} className='capitalize'>{query}</Typography>
-                <Typography className='text-sm'>Check each product page for other buying options.</Typography>
+                <Typography sx={{
+                    fontWeight: "bold", fontSize: { xs: "1.2rem", sm: "1.5rem" }
+                }} className='capitalize'>
+                    {query}
+                </Typography>
+                <Typography sx={{
+                    fontSize: { xs: "0.8rem", sm: "1rem" },
+                    marginBottom: 2
+                }}>
+                    Check each product page for other buying options.
+                </Typography>
             </Card>
             {data != null ? (
-                data?.products.map((items) => <SearchCard
-                    {...items}
-                />)
-            ) : <h1 className='text-grey-2 text-center'>Loading...</h1>}
-            
+                data?.products.map((items, index) => <SearchCard key={index} {...items} />)
+            ) : <Typography sx={{ textAlign: 'center', color: 'gray' }}>Loading...</Typography>}
+
+            <AppPagination total={data?.total} />
         </Container>
     )
 }
