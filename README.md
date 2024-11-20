@@ -6,6 +6,10 @@ Thank you for applying for the React Intern position at Intertwine Technologies!
 
 The goal of this assignment is to build a React application with the following functionalities:
 
+### Demo Video:
+
+https://github.com/user-attachments/assets/6e6a92e9-adbe-4212-8b4d-97a38dff1879
+
 ### Features
 
 #### Dashboard
